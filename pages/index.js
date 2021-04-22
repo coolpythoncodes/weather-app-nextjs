@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { SearchIcon } from "@heroicons/react/solid";
-import { useEffect, useRef, useState } from "react";
+import {useRef, useState } from "react";
 import axios from "axios";
 import WeatherLeftDetails from "../components/WeatherLeftDetails";
 import WeatherRightDetails from "../components/WeatherRightDetails";
@@ -10,36 +10,31 @@ const baseUrl = "https://api.openweathermap.org/data/2.5/weather";
 export default function Home() {
 	const searchInput = useRef(null);
 	const [weatherData, setWeatherData] = useState('');
+	const [errorOcurred, setErrorOcurred] = useState(false)
 
 	// const location = searchInput.current.value;
 
 	const fetchWeatherData = async (location) => {
+	try {
 		const rawData = await axios.get(
 			`${baseUrl}?q=${location}&units=metric&appid=${process.env.API_KEY}`
 		);
 		setWeatherData(rawData.data);
 		console.log(rawData.data);
+	} catch (error) {
+		if (error) {
+			setErrorOcurred(!errorOcurred)
+			setWeatherData()
+		}
+	}
 	};
 
 	const formSubmit = (e) => {
 		e.preventDefault();
-		// console.log(weatherData)
+		setErrorOcurred(false)
 		fetchWeatherData(searchInput.current.value);
+		searchInput.current.value = ''
 	};
-
-	// useEffect(() => {
-
-	// const fetchWeatherData = async () => {
-	//   const rawData = axios.get(
-	//     		`${baseUrl}?q=${searchInput.current.value}&units=metric&appid=${process.env.API_KEY}`
-	//     	);
-	//     	const weatherData = await (await rawData).data;
-	//       console.log(weatherData)
-
-	// }
-
-	//   fetchWeatherData()
-	// }, [searchInput.current.value]);
 
 	return (
 		<div className="flex flex-col h-screen sm:flex-row">
@@ -52,7 +47,7 @@ export default function Home() {
 			<div className="relative flex-1 bg-hot-ballon bg-no-repeat bg-top-4 bg-cover">
 				<div className="absolute top-0 left-0 bottom-0 right-0 bg-black opacity-70 z-0"></div>
 				{/* WeatherLeftDetails */}
-				{weatherData && <WeatherLeftDetails weatherData={weatherData}/>}
+				{weatherData && <WeatherLeftDetails weatherData={weatherData} errorOcurred={errorOcurred} />}
 			</div>
 
 			{/* Right */}
@@ -82,22 +77,12 @@ export default function Home() {
 				</ul>
 
 				<div className="ml-5">
-					<h1 className="text-white text-3xl pt-4 pb-4">Weather Details</h1>
+					<h1 className="text-white text-3xl pt-4 pb-4">{errorOcurred ? "Something went wrong" : "Weather Details"}</h1>
 					{/* WeatherRightDetails */}
-					{weatherData && <WeatherRightDetails weatherData={weatherData}/>}
+					{weatherData && <WeatherRightDetails weatherData={weatherData} errorOcurred={errorOcurred}/>}
 				</div>
 			</div>
 		</div>
 	);
 }
 
-// export async function getStaticProps(context) {
-// 	const rawData = axios.get(
-// 		`${baseUrl}?q=${context.query.location}&units=metric&appid=${process.env.API_KEY}`
-// 	);
-// 	const weatherData = await (await rawData).data;
-
-// 	return {
-// 		props: { weatherData },
-// 	};
-// }
