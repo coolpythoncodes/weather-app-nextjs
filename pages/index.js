@@ -1,65 +1,103 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import { SearchIcon } from "@heroicons/react/solid";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import WeatherLeftDetails from "../components/WeatherLeftDetails";
+import WeatherRightDetails from "../components/WeatherRightDetails";
+
+const baseUrl = "https://api.openweathermap.org/data/2.5/weather";
 
 export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+	const searchInput = useRef(null);
+	const [weatherData, setWeatherData] = useState('');
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+	// const location = searchInput.current.value;
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+	const fetchWeatherData = async (location) => {
+		const rawData = await axios.get(
+			`${baseUrl}?q=${location}&units=metric&appid=${process.env.API_KEY}`
+		);
+		setWeatherData(rawData.data);
+		console.log(rawData.data);
+	};
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+	const formSubmit = (e) => {
+		e.preventDefault();
+		// console.log(weatherData)
+		fetchWeatherData(searchInput.current.value);
+	};
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+	// useEffect(() => {
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+	// const fetchWeatherData = async () => {
+	//   const rawData = axios.get(
+	//     		`${baseUrl}?q=${searchInput.current.value}&units=metric&appid=${process.env.API_KEY}`
+	//     	);
+	//     	const weatherData = await (await rawData).data;
+	//       console.log(weatherData)
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+	// }
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+	//   fetchWeatherData()
+	// }, [searchInput.current.value]);
+
+	return (
+		<div className="flex flex-col h-screen sm:flex-row">
+			<Head>
+				<title>Weather App</title>
+				<link rel="icon" href="/favicon.ico" />
+			</Head>
+
+			{/* Left */}
+			<div className="relative flex-1 bg-hot-ballon bg-no-repeat bg-top-4 bg-cover">
+				<div className="absolute top-0 left-0 bottom-0 right-0 bg-black opacity-70 z-0"></div>
+				{/* WeatherLeftDetails */}
+				{weatherData && <WeatherLeftDetails weatherData={weatherData}/>}
+			</div>
+
+			{/* Right */}
+			<div className="flex-1 bg-primary">
+				<form
+					className="flex w-56 py-2 px-2 items-center ml-5 mt-10 bg-secondary shadow:lg"
+					onSubmit={formSubmit}
+				>
+					<input
+						className=" bg-transparent outline-none text-white"
+						type="text"
+						name=""
+						id=""
+						placeholder="Enter a Location"
+						ref={searchInput}
+						required
+					/>
+					<button className="ml-auto focus:outline-none" type="submit">
+						<SearchIcon className="h-6 text-white" />
+					</button>
+				</form>
+
+				<ul className="ml-5 my-4">
+					<li className="text-primary">Lagos</li>
+					<li className="my-1 text-primary">Lagos</li>
+					<li className="text-primary">Lagos</li>
+				</ul>
+
+				<div className="ml-5">
+					<h1 className="text-white text-3xl pt-4 pb-4">Weather Details</h1>
+					{/* WeatherRightDetails */}
+					{weatherData && <WeatherRightDetails weatherData={weatherData}/>}
+				</div>
+			</div>
+		</div>
+	);
 }
+
+// export async function getStaticProps(context) {
+// 	const rawData = axios.get(
+// 		`${baseUrl}?q=${context.query.location}&units=metric&appid=${process.env.API_KEY}`
+// 	);
+// 	const weatherData = await (await rawData).data;
+
+// 	return {
+// 		props: { weatherData },
+// 	};
+// }
