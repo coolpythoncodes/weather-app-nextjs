@@ -21,12 +21,11 @@ export default function Home() {
 			if(history.length < 3){
 				setHistory([...history, weather.name])
 			}else{
-				setHistory(history.shift())
+				history.shift()
 				setHistory([...history, weather.name])
 			}
 		}
 	}
-	// console.log(history)
 
 	const fetchWeatherData = async (location) => {
 		try {
@@ -92,9 +91,9 @@ export default function Home() {
 				</form>
 
 				<ul className="ml-5 my-4">
-					{/* {
-						history.map((item) => <LocationItem fetchWeatherData={fetchWeatherData} item={item} />)
-					} */}
+					{
+						history.map((item,index) => <LocationItem key={index} fetchWeatherData={fetchWeatherData} item={item} />)
+					}
 					{/* <li className="text-primary">Lagos</li>
 					<li className="my-1 text-primary">Lagos</li>
 					<li className="text-primary">Lagos</li> */}
